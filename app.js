@@ -36,14 +36,14 @@ app.post('/add', (req, res) => {
 
 // Route to update an existing user
 app.put('/update-location', (req, res) => {
-    controller.updateUser(req.body, (callback) => {
+    controller.updateUserLocation(req.body, (callback) => {
         res.send(callback);
     });
 });
 
 app.get('weather-data', async (req, res) => {
     try {
-        const users = await controller.getUsers();
+        const users = await controller.getUserWeatherData();
         res.json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
