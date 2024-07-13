@@ -1,11 +1,10 @@
 {
-   "version": 2,
-   "name": "Weather",
-   "builds": [
+  "version": 2,
+  "name": "Weather",
+  "builds": [
      { "src": "app.js", "use": "@vercel/node" }
-   ],
-   "routes": [
-     { "src": "/api/(.*)", "dest": "/app.js" }
-   ]
- }
- 
+  ],
+  "routes": [
+     { "src": "/(.*)", "dest": "/app.js" }
+  ]
+}

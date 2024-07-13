@@ -3,8 +3,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
-const User = require('./models/User');  // Assuming the User model is in the models directory
-const { getWeatherData } = require('./utils/weatherUtils'); // Assuming you have this utility function
 
 const app = express();
 
@@ -18,7 +16,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const uri = process.env.MONGODB_URI || 'your_default_mongodb_uri';
+const uri = 'mongodb+srv://weather:weather123@weather.8qzfpns.mongodb.net/?retryWrites=true&w=majority&appName=weather';
 
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
@@ -30,25 +28,23 @@ app.use('/api/users', router);
 const controller = require('./controllers/userController');
 
 // Route to create a new user
-app.post('/api/users/add', (req, res) => {
-    controller.addUser(req, res);
+app.post('/add', (req, res) => {
+    controller.addUser(req.body, (callback) => {
+        res.send(callback);
+    });
 });
 
 // Route to update an existing user
-app.put('/api/users/update-location', (req, res) => {
-    controller.updateUserLocation(req, res);
+app.put('/update-location', (req, res) => {
+    controller.updateUser(req.body, (callback) => {
+        res.send(callback);
+    });
 });
-app.get('/api/users/weather-data', async (req, res) => {
-    try {
-        const users = await User.find();
-        const weatherDataPromises = users.map(async user => ({
-            email: user.email,
-            location: user.location,
-            weather: await getWeatherData(user.location.lat, user.location.lon)
-        }));
 
-        const weatherData = await Promise.all(weatherDataPromises);
-        res.json(weatherData);
+app.get('weather-data', async (req, res) => {
+    try {
+        const users = await controller.getUsers();
+        res.json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -80,5 +76,6 @@ const sendWeatherReports = async () => {
 };
 
 setInterval(sendWeatherReports, 3 * 60 * 60 * 1000); // every 3 hours
+
 
 module.exports = app;
